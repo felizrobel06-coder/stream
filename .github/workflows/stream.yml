@@ -1,0 +1,18 @@
+name: Stream 24/7
+on:
+  workflow_dispatch:
+
+jobs:
+  streaming:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargando Video
+        run: |
+          wget -O video.mp4 https://www.dropbox.com/scl/fi/y1g0jh7hzrb8cb9qxqo7s/video.mp4?rlkey=ysdwe6jgw9emqv65vw34nwweb&st=crcj1efc&dl=1
+          
+      - name: Install FFmpeg
+        run: sudo apt update && sudo apt install -y ffmpeg
+
+      - name: Transmitiendo a YouTube
+        run: |
+          ffmpeg -re -stream_loop -1 -i video.mp4 -c:v libx264 -preset veryfast -b:v 2500k -maxrate 2500k -bufsize 5000k -pix_fmt yuv420p -g 30 -c:a aac -b:a 128k -ar 44100 -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.YOUTUBE_KEY }}
